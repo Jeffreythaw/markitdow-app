@@ -1,2 +1,13 @@
 streamlit
-markitdown
+beautifulsoup4
+charset-normalizer
+defusedxml
+magika
+markdownify
+mammoth
+openpyxl
+pandas
+pdfminer-six
+pdfplumber
+python-pptx
+requests

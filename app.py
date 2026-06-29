@@ -4,10 +4,15 @@ from pathlib import Path
 
 from flask import Flask, render_template_string, request
 from markitdown import MarkItDown
+from openai import OpenAI
 from werkzeug.utils import secure_filename
 
 
 IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png"}
+IMAGE_PROMPT = (
+    "Extract all visible text from this image and return clean Markdown. "
+    "If there is no readable text, briefly describe the image."
+)
 ALLOWED_EXTENSIONS = {
     ".pdf",
     ".docx",
@@ -90,11 +95,19 @@ def convert_upload(uploaded_file):
             uploaded_file.save(temp_file)
             temp_file_path = temp_file.name
 
-        markdown = MarkItDown().convert(temp_file_path).text_content
+        md = MarkItDown()
+        if suffix in IMAGE_EXTENSIONS and os.getenv("OPENAI_API_KEY"):
+            md = MarkItDown(
+                llm_client=OpenAI(),
+                llm_model=os.getenv("OPENAI_VISION_MODEL", "gpt-4o-mini"),
+                llm_prompt=IMAGE_PROMPT,
+            )
+
+        markdown = md.convert(temp_file_path).text_content
         if not markdown.strip() and suffix in IMAGE_EXTENSIONS:
             return (
                 f"# {filename}\n\n"
-                "ဓာတ်ပုံ metadata မတွေ့ပါ။ ဓာတ်ပုံထဲကစာ/အကြောင်းအရာကို ဖတ်ချင်ရင် OCR သို့မဟုတ် Vision LLM ချိတ်ရန်လိုပါသည်။"
+                "ဓာတ်ပုံထဲကစာ/အကြောင်းအရာကို ဖတ်ရန် Render Environment ထဲမှာ OPENAI_API_KEY ထည့်ရန်လိုပါသည်။"
             )
         return markdown
     finally:

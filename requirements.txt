@@ -6,6 +6,7 @@ defusedxml
 magika
 markdownify
 mammoth
+openai
 openpyxl
 pandas
 pdfminer-six

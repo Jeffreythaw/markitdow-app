@@ -1,4 +1,5 @@
-streamlit
+flask
+gunicorn
 beautifulsoup4
 charset-normalizer
 defusedxml
